@@ -18,7 +18,7 @@ func TestService_NewService_NewServiceSuccess(t *testing.T) {
 	s, ok := svc.(*service)
 	require.True(t, ok)
 
-	assert.Equal(t, apiURL, s.ApiURL)
+	assert.Equal(t, apiURL, s.apiURL)
 	require.NotNil(t, s.client)
 }
 
@@ -71,7 +71,7 @@ func TestService_GetWeatherStamp_Success(t *testing.T) {
 	}
 
 	s := service{
-		ApiURL: "some-api",
+		apiURL: "some-api",
 		client: mock,
 	}
 
@@ -108,7 +108,7 @@ func TestService_GetWeatherStamp_ResponseFail(t *testing.T) {
 	}
 
 	s := service{
-		ApiURL: "some-api",
+		apiURL: "some-api",
 		client: mock,
 	}
 
@@ -124,7 +124,7 @@ func TestService_GetWeatherStamp_JsonUnmarshalFail(t *testing.T) {
 	}
 
 	s := service{
-		ApiURL: "some-api",
+		apiURL: "some-api",
 		client: mock,
 	}
 
@@ -177,7 +177,7 @@ func TestService_GetWeatherDaily_Success(t *testing.T) {
 	}
 
 	s := service{
-		ApiURL: "some-api",
+		apiURL: "some-api",
 		client: mock,
 	}
 
@@ -225,7 +225,7 @@ func TestService_GetWeatherDaily_ResponseFail(t *testing.T) {
 	}
 
 	s := service{
-		ApiURL: "some-api",
+		apiURL: "some-api",
 		client: mock,
 	}
 
@@ -241,7 +241,7 @@ func TestService_GetWeatherDaily_JsonUnmarshalFail(t *testing.T) {
 	}
 
 	s := service{
-		ApiURL: "some-api",
+		apiURL: "some-api",
 		client: mock,
 	}
 
@@ -312,7 +312,7 @@ func TestService_GetWeatherWeekly_Success(t *testing.T) {
 	}
 
 	s := service{
-		ApiURL: "some-api",
+		apiURL: "some-api",
 		client: mock,
 	}
 
@@ -366,7 +366,7 @@ func TestService_GetWeatherWeekly_ResponseFail(t *testing.T) {
 	}
 
 	s := service{
-		ApiURL: "some-api",
+		apiURL: "some-api",
 		client: mock,
 	}
 
@@ -382,7 +382,7 @@ func TestService_GetWeatherWeekly_JsonUnmarshalFail(t *testing.T) {
 	}
 
 	s := service{
-		ApiURL: "some-api",
+		apiURL: "some-api",
 		client: mock,
 	}
 

@@ -13,13 +13,13 @@ type Service interface {
 }
 
 type service struct {
-	ApiURL string
+	apiURL string
 	client clientI
 }
 
 func NewService(apiURL string) Service {
 	return &service{
-		ApiURL: apiURL,
+		apiURL: apiURL,
 		client: NewClient(nil),
 	}
 }
@@ -27,7 +27,7 @@ func NewService(apiURL string) Service {
 func (s *service) GetWeatherStamp(ctx context.Context, lat, lon float64) (WeatherStamp, error) {
 	respJson, err := s.client.get(
 		ctx,
-		s.ApiURL,
+		s.apiURL,
 		"?latitude="+strconv.FormatFloat(lat, 'f', -1, 64),
 		"&longitude="+strconv.FormatFloat(lon, 'f', -1, 64),
 		"&current=temperature_2m,relative_humidity_2m,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m,precipitation",
@@ -48,7 +48,7 @@ func (s *service) GetWeatherStamp(ctx context.Context, lat, lon float64) (Weathe
 func (s *service) GetWeatherDaily(ctx context.Context, lat, lon float64) (WeatherDaily, error) {
 	respJson, err := s.client.get(
 		ctx,
-		s.ApiURL,
+		s.apiURL,
 		"?latitude="+strconv.FormatFloat(lat, 'f', -1, 64),
 		"&longitude="+strconv.FormatFloat(lon, 'f', -1, 64),
 		"&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,wind_speed_10m_max,precipitation_sum",
@@ -71,7 +71,7 @@ func (s *service) GetWeatherDaily(ctx context.Context, lat, lon float64) (Weathe
 func (s *service) GetWeatherWeekly(ctx context.Context, lat, lon float64) (WeatherDaily, error) {
 	respJson, err := s.client.get(
 		ctx,
-		s.ApiURL,
+		s.apiURL,
 		"?latitude="+strconv.FormatFloat(lat, 'f', -1, 64),
 		"&longitude="+strconv.FormatFloat(lon, 'f', -1, 64),
 		"&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,wind_speed_10m_max,precipitation_sum",

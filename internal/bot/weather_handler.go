@@ -10,37 +10,34 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-type TimeIntervalMode int
-
-const (
-	Stamp TimeIntervalMode = iota
-	Daily
-	Weekly
-)
-
-type WeatherResponse interface {
-	Format() string
-}
-
-type handler func(weather.Service, context.Context, float64, float64) (WeatherResponse, error)
-
-var handlers = map[TimeIntervalMode]handler{
-	Stamp: func(s weather.Service, ctx context.Context, lat, lon float64) (WeatherResponse, error) {
-		return s.GetWeatherStamp(ctx, lat, lon)
-	},
-	Daily: func(s weather.Service, ctx context.Context, lat, lon float64) (WeatherResponse, error) {
-		return s.GetWeatherDaily(ctx, lat, lon)
-	},
-	Weekly: func(s weather.Service, ctx context.Context, lat, lon float64) (WeatherResponse, error) {
-		return s.GetWeatherWeekly(ctx, lat, lon)
-	},
-}
-
 type UserState int
 
 const (
 	StateWaitingCity UserState = iota
 	StateWaitingInterval
+)
+
+type TimeIntervalMode int
+
+const (
+	StampMode TimeIntervalMode = iota
+	DailyMode
+	WeeklyMode
+)
+
+type TimeIntervalName string
+
+const (
+	Stamp  TimeIntervalName = "Сейчас"
+	Daily  TimeIntervalName = "День"
+	Weekly TimeIntervalName = "Неделя"
+)
+
+type City string
+
+const (
+	Moscow       City = "Москва"
+	StPetersburg City = "Санкт-Петербург"
 )
 
 var usersState = make(map[int64]UserState)
@@ -51,6 +48,24 @@ type UserInfo struct {
 }
 
 var usersInfo = make(map[int64]*UserInfo)
+
+type WeatherResponse interface {
+	Format() string
+}
+
+type handler func(weather.Service, context.Context, float64, float64) (WeatherResponse, error)
+
+var handlers = map[TimeIntervalMode]handler{
+	StampMode: func(s weather.Service, ctx context.Context, lat, lon float64) (WeatherResponse, error) {
+		return s.GetWeatherStamp(ctx, lat, lon)
+	},
+	DailyMode: func(s weather.Service, ctx context.Context, lat, lon float64) (WeatherResponse, error) {
+		return s.GetWeatherDaily(ctx, lat, lon)
+	},
+	WeeklyMode: func(s weather.Service, ctx context.Context, lat, lon float64) (WeatherResponse, error) {
+		return s.GetWeatherWeekly(ctx, lat, lon)
+	},
+}
 
 func (b *Bot) handleWeatherMessage(ctx context.Context, msg *tgbotapi.Message) {
 	chatID := msg.Chat.ID
@@ -65,9 +80,9 @@ func (b *Bot) handleWeatherMessage(ctx context.Context, msg *tgbotapi.Message) {
 	switch state {
 	case StateWaitingCity:
 		switch text {
-		case "Москва":
+		case string(Moscow):
 			usersInfo[chatID].City = geo.Moscow
-		case "Санкт-Петербург":
+		case string(StPetersburg):
 			usersInfo[chatID].City = geo.StPetersburg
 		default:
 			b.replyWithKeyboard(chatID, "Выберите город:", cityKeyboard())
@@ -79,12 +94,12 @@ func (b *Bot) handleWeatherMessage(ctx context.Context, msg *tgbotapi.Message) {
 
 	case StateWaitingInterval:
 		switch text {
-		case "Сейчас":
-			usersInfo[chatID].TimeIntervalMode = Stamp
-		case "День":
-			usersInfo[chatID].TimeIntervalMode = Daily
-		case "Неделя":
-			usersInfo[chatID].TimeIntervalMode = Weekly
+		case string(Stamp):
+			usersInfo[chatID].TimeIntervalMode = StampMode
+		case string(Daily):
+			usersInfo[chatID].TimeIntervalMode = DailyMode
+		case string(Weekly):
+			usersInfo[chatID].TimeIntervalMode = WeeklyMode
 		default:
 			b.replyWithKeyboard(chatID, "Выберите интервал:", intervalKeyboard())
 			return
