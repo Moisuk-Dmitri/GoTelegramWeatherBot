@@ -20,24 +20,9 @@ const (
 type TimeIntervalMode int
 
 const (
-	StampMode TimeIntervalMode = iota
-	DailyMode
-	WeeklyMode
-)
-
-type TimeIntervalName string
-
-const (
-	Stamp  TimeIntervalName = "Сейчас"
-	Daily  TimeIntervalName = "День"
-	Weekly TimeIntervalName = "Неделя"
-)
-
-type City string
-
-const (
-	Moscow       City = "Москва"
-	StPetersburg City = "Санкт-Петербург"
+	Stamp TimeIntervalMode = iota
+	Daily
+	Weekly
 )
 
 var usersState = make(map[int64]UserState)
@@ -56,15 +41,35 @@ type WeatherResponse interface {
 type handler func(weather.Service, context.Context, float64, float64) (WeatherResponse, error)
 
 var handlers = map[TimeIntervalMode]handler{
-	StampMode: func(s weather.Service, ctx context.Context, lat, lon float64) (WeatherResponse, error) {
+	Stamp: func(s weather.Service, ctx context.Context, lat, lon float64) (WeatherResponse, error) {
 		return s.GetWeatherStamp(ctx, lat, lon)
 	},
-	DailyMode: func(s weather.Service, ctx context.Context, lat, lon float64) (WeatherResponse, error) {
+	Daily: func(s weather.Service, ctx context.Context, lat, lon float64) (WeatherResponse, error) {
 		return s.GetWeatherDaily(ctx, lat, lon)
 	},
-	WeeklyMode: func(s weather.Service, ctx context.Context, lat, lon float64) (WeatherResponse, error) {
+	Weekly: func(s weather.Service, ctx context.Context, lat, lon float64) (WeatherResponse, error) {
 		return s.GetWeatherWeekly(ctx, lat, lon)
 	},
+}
+
+const (
+	CityMoscowLabel       = "Москва"
+	CityStPetersburgLabel = "Санкт-Петербург"
+
+	IntervalNowLabel  = "Сейчас"
+	IntervalDayLabel  = "День"
+	IntervalWeekLabel = "Неделя"
+)
+
+var cityByLabel = map[string]geo.City{
+	CityMoscowLabel:       geo.Moscow,
+	CityStPetersburgLabel: geo.StPetersburg,
+}
+
+var intervalByLabel = map[string]TimeIntervalMode{
+	IntervalNowLabel:  Stamp,
+	IntervalDayLabel:  Daily,
+	IntervalWeekLabel: Weekly,
 }
 
 func (b *Bot) handleWeatherMessage(ctx context.Context, msg *tgbotapi.Message) {
@@ -79,31 +84,24 @@ func (b *Bot) handleWeatherMessage(ctx context.Context, msg *tgbotapi.Message) {
 
 	switch state {
 	case StateWaitingCity:
-		switch text {
-		case string(Moscow):
-			usersInfo[chatID].City = geo.Moscow
-		case string(StPetersburg):
-			usersInfo[chatID].City = geo.StPetersburg
-		default:
+		city, ok := cityByLabel[text]
+		if !ok {
 			b.replyWithKeyboard(chatID, "Выберите город:", cityKeyboard())
 			return
 		}
+
+		usersInfo[chatID].City = city
 
 		b.replyWithKeyboard(chatID, "Выберите интервал:", intervalKeyboard())
 		usersState[chatID] = StateWaitingInterval
 
 	case StateWaitingInterval:
-		switch text {
-		case string(Stamp):
-			usersInfo[chatID].TimeIntervalMode = StampMode
-		case string(Daily):
-			usersInfo[chatID].TimeIntervalMode = DailyMode
-		case string(Weekly):
-			usersInfo[chatID].TimeIntervalMode = WeeklyMode
-		default:
+		interval, ok := intervalByLabel[text]
+		if !ok {
 			b.replyWithKeyboard(chatID, "Выберите интервал:", intervalKeyboard())
 			return
 		}
+		usersInfo[chatID].TimeIntervalMode = interval
 
 		coords, err := geo.CoordinatesByCity(usersInfo[chatID].City)
 		if err != nil {

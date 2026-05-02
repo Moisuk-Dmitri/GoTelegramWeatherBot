@@ -5,8 +5,8 @@ import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 func cityKeyboard() tgbotapi.ReplyKeyboardMarkup {
 	return tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
-			tgbotapi.NewKeyboardButton("Москва"),
-			tgbotapi.NewKeyboardButton("Санкт-Петербург"),
+			tgbotapi.NewKeyboardButton(CityMoscowLabel),
+			tgbotapi.NewKeyboardButton(CityStPetersburgLabel),
 		),
 	)
 }
@@ -14,9 +14,9 @@ func cityKeyboard() tgbotapi.ReplyKeyboardMarkup {
 func intervalKeyboard() tgbotapi.ReplyKeyboardMarkup {
 	return tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
-			tgbotapi.NewKeyboardButton("Сейчас"),
-			tgbotapi.NewKeyboardButton("День"),
-			tgbotapi.NewKeyboardButton("Неделя"),
+			tgbotapi.NewKeyboardButton(IntervalNowLabel),
+			tgbotapi.NewKeyboardButton(IntervalDayLabel),
+			tgbotapi.NewKeyboardButton(IntervalWeekLabel),
 		),
 	)
 }
